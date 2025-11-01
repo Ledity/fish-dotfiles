@@ -15,4 +15,8 @@ if status is-interactive
     if type go &>/dev/null
         set -x GOPATH $HOME/.local/go
     end
+
+    if type hx &>/dev/null
+        set -x PATH $PATH "$HOME/.local/share/helix/LSP/bin"
+    end
 end
