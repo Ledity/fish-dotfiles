@@ -6,9 +6,6 @@ if status is-interactive
     # setup sudo prompt
     set -x SUDO_PROMPT \a"[sudo] введите пароль: "
 
-    # set $EDITOR
-    set -x EDITOR nvim
-
     # set $SSH_AUTH_SOCK
     set -x SSH_AUTH_SOCK "$XDG_RUNTIME_DIR/ssh-agent.socket"
 
@@ -18,5 +15,7 @@ if status is-interactive
 
     if type hx &>/dev/null
         set -x PATH $PATH "$HOME/.local/share/helix/LSP/bin"
+        # set $EDITOR
+        set -x EDITOR hx
     end
 end
