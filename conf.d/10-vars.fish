@@ -1,7 +1,7 @@
 if status is-interactive
-    if type nvim &>/dev/null
-        set -x MANPAGER nvim +Man!
-    end
+    # if type nvim &>/dev/null
+    #     set -x MANPAGER nvim +Man!
+    # end
 
     # setup sudo prompt
     set -x SUDO_PROMPT \a"[sudo] введите пароль: "
