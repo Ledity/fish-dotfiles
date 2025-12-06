@@ -10,11 +10,11 @@ if status is-interactive
     set -x SSH_AUTH_SOCK "$XDG_RUNTIME_DIR/ssh-agent.socket"
 
     if type go &>/dev/null
-        set -x GOPATH $HOME/.local/go
+        fish_add_path --path $GOPATH/bin
     end
 
     if type hx &>/dev/null
-        set -x PATH $PATH "$HOME/.local/share/helix/LSP/bin"
+        fish_add_path --path $HOME/.local/share/helix/LSP/bin
         # set $EDITOR
         set -x EDITOR hx
     end
