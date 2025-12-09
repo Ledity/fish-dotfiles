@@ -9,8 +9,12 @@ if status is-interactive
     # set $SSH_AUTH_SOCK
     set -x SSH_AUTH_SOCK "$XDG_RUNTIME_DIR/ssh-agent.socket"
 
-    if type go &>/dev/null
+    if type go &>/dev/null && set -q GOPATH && test -d $GOPATH/bin
         fish_add_path --path $GOPATH/bin
+    end
+
+    if type cargo &>/dev/null && set -q CARGO_PATH && test -d $CARGO_PATH/bin
+        fish_add_path --path $CARGO_PATH/bin
     end
 
     if type hx &>/dev/null
