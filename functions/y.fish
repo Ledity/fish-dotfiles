@@ -1,7 +1,7 @@
 #!/usr/bin/fish
 
 function y
-    if ! type yazi &>/dev/null
+    if ! type -q yazi
         echo "yazi not found" &>2
         return 1
     end

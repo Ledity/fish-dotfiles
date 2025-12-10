@@ -1,7 +1,7 @@
 #!/usr/bin/fish
 
 function n --wraps nnn --description 'support nnn quit and change directory'
-    if type nnn > /dev/null
+    if type -q nnn
     else
         return 1
     end
