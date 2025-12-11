@@ -1,12 +1,8 @@
 if status is-interactive # Commands to run in interactive sessions can go here
     abbr --add cl "clear && exec fish"
 
-    if type just &>/dev/null
+    if type -q just
         abbr --add j just
-    end
-
-    if type pacman &>/dev/null
-        abbr --add type_pkg --set-cursor "pacman -Qo (type %)"
     end
 
     function _add_abbr_if_exists
@@ -16,7 +12,6 @@ if status is-interactive # Commands to run in interactive sessions can go here
         end
     end
 
-    _add_abbr_if_exists nvim-c "$HOME/.config/nvim"
     _add_abbr_if_exists fish-c "$HOME/.config/fish"
     _add_abbr_if_exists fish-d "$HOME/.config/fish/conf.d"
     _add_abbr_if_exists fish-f "$HOME/.config/fish/functions"
@@ -40,10 +35,6 @@ if status is-interactive # Commands to run in interactive sessions can go here
     end
     abbr --add '!' --position=anywhere --function _last_history_item_args
     abbr --add '!1' --position=anywhere --function _last_history_item_last_arg
-
-    abbr --add pacman-autoremove 'pacman -Qdtq | sudo pacman -Rs -'
-    abbr --add pacman-list-packages --set-cursor \
-        'sudo pacman -Ss % | awk -F/ \'FLAG == 0 && $1 != "chaotic-aur" {print $0}; FLAG == 1 {FLAG = 0}; $1 == "chaotic-aur" {FLAG = 1}\''
 
     function _eza_or_ls --description "try replacing ls with eza if possible"
         if type eza &>/dev/null
