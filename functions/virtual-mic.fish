@@ -61,7 +61,7 @@ function virtual-mic --description 'add a virtual microphone decieve apps'
     # MAIN
     if test "$COMMAND" = add
         if test "$EXISTS" = true
-            echo "Virtual microphone already exists" &>2
+            echo "Virtual microphone already exists" >&2
             return 32
         else if test "$SERVER" = pw
             pw-cli create-node adapter "{ factory.name=support.null-audio-sink node.name=pw-virt-mic@$(whoami) media.class=Audio/Source/Virtual object.linger=true audio.position=[FL FR] monitor.channel-volumes=true }"
@@ -70,12 +70,12 @@ function virtual-mic --description 'add a virtual microphone decieve apps'
         end
     else if test "$COMMAND" = del
         if test "$EXISTS" = false
-            echo "Virtual microphone does not exist" &>2
+            echo "Virtual microphone does not exist" >&2
             return 32
         else if test "$SERVER" = pw
-            pw-cli destroy pw-virt-mic@$(whoami)
+            pw-cli destroy pw-virt-mic@$(whoami) &>/dev/null
         else if test "$SERVER" = pa
-            pactl unload-module $(cat $HOME/.cache/pa-virt-mic)
+            pactl unload-module $(cat $HOME/.cache/pa-virt-mic) &>/dev/null
         end
     end
 end
