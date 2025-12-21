@@ -46,7 +46,7 @@ Where:
             end
         end
 
-        echo "
+        echo "\
 $(set_color -o yellow)WARNING$(set_color normal): Could not find $executable in PATH" >&2
         return 1
     end
