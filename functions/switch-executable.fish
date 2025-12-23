@@ -1,47 +1,87 @@
 function switch-executable \
     --description "Switch an executable's execution flag on and off"
     function usage
+        if set -q DEBUG
+            echo usage "'$argv'" >&2
+        end
         echo -e "\
 Switch an executable's execution flag on and off.
+Usage:
+  $argv[1] [-h/--help] [-n/--no-cache] COMMAND [MODE]
+" \t >&2
 
-Usage: $argv[1] [-h/--help] [-n/--no-cache] COMMAND [MODE]
+        echo -e "\
 Where:
-\t-h, --help\t-\tShow this message.
-\t-n, --no-cache\t-\tDo not save or read the previous location of the executable.
-\tCOMMAND\t-\tcommand to switch.
-\tMODE\t-\ton, off, or toggle. Defaults to toggle
-"
+  -h, --help\t-\tShow this message.
+  -n, --no-cache\t-\tDo not save or read the previous location of the executable.
+  COMMAND\t-\tcommand to switch.
+  MODE\t-\ton, off, or toggle. Defaults to toggle.
+" | column --table --separator \t >&2
     end
 
-    set -fx cache_dir "$HOME/.cache/switch-executable"
+    function cache-path
+        if set -q DEBUG
+            echo cache-path "'$argv'" >&2
+        end
+        argparse --name cache-path --min-args 1 --max-args 1 -- $argv
+        or return 255
+        set -f executable $argv[1]
+
+        set -f cache_dir "$HOME/.cache/switch-executable"
+
+        if not test -d "$cache_dir"
+            mkdir "$cache_dir"
+            or return 0
+        end
+
+        set -f cache_path "$cache_dir/$executable"
+        echo $cache_path
+    end
 
     function find-cached
+        if set -q DEBUG
+            echo find-cached "'$argv'" >&2
+        end
+        argparse --name find-cached --min-args 1 --max-args 1 -- $argv
+        or return 255
+        set -f executable $argv[1]
+
         if type -fq $executable
             type -fp $executable
             return 0
         end
 
-        if not test -d "$cache_dir"
-            echo "CACHE (find-cached): $cache_dir" >&2
-            mkdir "$cache_dir"
-            or return 0
-        end
-
-        if not test -f "$cache_path" || not test -r "$cache_path"
+        set -f cache_path (cache-path $executable)
+        if not test -e "$cache_path"
             return 0
         end
 
-        set -f kotlin_lsp (cat cache_path)
-        if test -e "$kotlin_lsp"
-            echo "$kotlin_lsp"
+        set -f executable_path (cat $cache_path)
+        if test -e "$executable_path"
+            echo "$executable_path"
         end
     end
 
     function find-brute
+        if set -q DEBUG
+            echo find-brute "'$argv'" >&2
+        end
+        argparse --name find-brute no-cache -- $argv
+        or return 255
+        argparse --name find-brute --min-args 1 --max-args 1 -- $argv
+        or return 255
+        set -f executable $argv[1]
+
+        set -f cache_path (cache-path "$executable")
+
         for p in $PATH
-            set -f kotlin_lsp (find $p -name "$executable")
-            if test -n "$kotlin_lsp"
-                echo "$kotlin_lsp"
+            set -f executable_path (find $p -name "$executable")
+
+            if test -n "$executable_path"
+                if not set -q _flag_no_cache # && test -n "$cache_path"
+                    echo $executable_path >"$cache_path"
+                end
+                echo "$executable_path"
                 return 0
             end
         end
@@ -51,31 +91,61 @@ $(set_color -o yellow)WARNING$(set_color normal): Could not find $executable in 
         return 1
     end
 
-    function on
-        set -f path "$argv[1]"
-
+    function find-executable
         if set -q DEBUG
-            echo 'chmod +x "$path" --silent'
+            echo find-executable "'$argv'" >&2
+        end
+        argparse --name find-executable --exclusive='cache,brute' cache brute no-cache -- $argv
+        or return 255
+        argparse --min-args 1 --max-args 1 -- $argv
+        or return 255
+        set -f executable $argv[1]
+
+        if set -q _flag_cache
+            find-cached $executable
             return 0
         end
+        if set -q _flag_brute
+            if set -q $_flag_no_cache
+                find-brute --no-cache $executable
+            else
+                find-brute $executable
+            end
+            return 0
+        end
+
+        return 1
+    end
+
+    function on
+        if set -q DEBUG
+            echo on "'$argv'" >&2
+        end
+        argparse --name on --min-args 1 --max-args 1 -- $argv
+        set -f path "$argv[1]"
+
         chmod +x "$path" --silent
         or echo "\
 $(set_color -o red)ERROR$(set_color normal): Could not set $path on" >&2
     end
 
     function off
+        if set -q DEBUG
+            echo off "'$argv'" >&2
+        end
+        argparse --name off --min-args 1 --max-args 1 -- $argv
         set -f path "$argv[1]"
 
-        if set -q DEBUG
-            echo 'chmod -x "$path" --silent'
-            return 0
-        end
         chmod -x "$path" --silent
         or echo "\
 $(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
     end
 
     function toggle
+        if set -q DEBUG
+            echo toggle "'$argv'" >&2
+        end
+        argparse --name toggle --min-args 1 --max-args 1 -- $argv
         set -f path "$argv[1]"
         if test -x "$path"
             off $path
@@ -85,12 +155,13 @@ $(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
     end
 
     function do-action
+        if set -q DEBUG
+            echo do-action "'$argv'" >&2
+        end
+        argparse --name do-action --min-args 2 --max-args 2 -- $argv
+        or return 255
         set -f subcmd $argv[1]
         set -f path $argv[2]
-
-        if set -q DEBUG
-            echo $subcmd $path
-        end
 
         switch "$subcmd"
             case on
@@ -104,18 +175,17 @@ $(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
                 return $status
 
             case '*'
-                usage switch-executable >&2 && return 255
+                usage switch-executable >&2 && return 1
         end
     end
 
     argparse --name=switch-executable h/help n/no-cache q/query -- $argv
-    or usage switch-executable >&2 && return 255
-    argparse --name=switch-executable --max-args=2 --min-args=1 -- $argv
-    or usage switch-executable >&2 && return 255
+    or usage switch-executable >&2 && return 1
+    argparse --name=switch-executable --max-args 2 --min-args 1 -- $argv
+    or usage switch-executable >&2 && return 1
 
-    set -fx executable "$argv[1]"
+    set -f executable "$argv[1]"
     set -e argv[1]
-    set -fx cache_path "$cache_dir/"
 
     if set -q _flag_help
         usage >&2
@@ -128,6 +198,8 @@ $(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
         else
             echo false
         end
+
+        return 0
     end
 
     if not set -q argv[1]
@@ -136,8 +208,8 @@ $(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
         set -f subcmd "$argv[1]"
     end
 
-    if not set -q _flag_n
-        set -f path (find-cached)
+    if not set -q _flag_no_cache
+        set -f path (find-executable --cache $executable)
         if test -n "$path" && test -e "$path"
             do-action $subcmd $path
             if test "$status" = 0
@@ -148,16 +220,8 @@ $(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
         end
     end
 
-    set -f path (find-brute)
+    set -f path (find-executable --brute $executable)
     or return 0
-
-    if not set -q _flag_n
-        if not test -e "$cache_dir"
-            echo "CACHE (main): $cache_dir" >&2
-            mkdir "$cache_dir"
-            echo $path >$cache_path
-        end
-    end
 
     do-action $subcmd $path
     return $status
