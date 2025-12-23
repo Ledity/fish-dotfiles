@@ -14,7 +14,7 @@ Usage:
 Where:
   -h, --help\t-\tShow this message.
   -n, --no-cache\t-\tDo not save or read the previous location of the executable.
-  COMMAND\t-\tcommand to switch.
+  COMMAND\t-\tCommand to switch.
   MODE\t-\ton, off, or toggle. Defaults to toggle.
 " | column --table --separator \t >&2
     end
@@ -103,7 +103,7 @@ Where:
             return 0
         end
         if set -q _flag_brute
-            if set -q $_flag_no_cache
+            if set -q _flag_no_cache
                 find-brute --no-cache $executable
             else
                 find-brute $executable
@@ -123,7 +123,7 @@ Where:
 
         chmod +x "$path" --silent
         or echo "\
-$(set_color -o red)ERROR$(set_color normal): Could not set $path on" >&2
+$(set_color -o red)ERROR$(set_color normal): Could not set $path on" >&2 && return 1
     end
 
     function off
@@ -135,7 +135,7 @@ $(set_color -o red)ERROR$(set_color normal): Could not set $path on" >&2
 
         chmod -x "$path" --silent
         or echo "\
-$(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
+$(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2 && return 1
     end
 
     function toggle
@@ -146,8 +146,10 @@ $(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
         set -f path "$argv[1]"
         if test -x "$path"
             off $path
+            or return 1
         else
             on $path
+            or return 1
         end
     end
 
@@ -176,7 +178,7 @@ $(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
         end
     end
 
-    argparse --name=switch-executable h/help n/no-cache q/query -- $argv
+    argparse --name=switch-executable h/help n/no-cache -- $argv
     or usage switch-executable >&2 && return 1
     argparse --name=switch-executable --max-args 2 --min-args 1 -- $argv
     or usage switch-executable >&2 && return 1
@@ -186,16 +188,6 @@ $(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
 
     if set -q _flag_help
         usage >&2
-        return 0
-    end
-
-    if set -q _flag_query
-        if type -qf $executable
-            echo true
-        else
-            echo false
-        end
-
         return 0
     end
 
@@ -230,3 +222,29 @@ $(set_color -o yellow)WARNING$(set_color normal): Could not find $executable in 
     do-action $subcmd $path
     return $status
 end
+
+complete \
+    --command switch-executable \
+    --short-option h \
+    --long-option help \
+    --no-files \
+    --description "Show help"
+complete \
+    --command switch-executable \
+    --short-option n \
+    --long-option no-cache \
+    --no-files \
+    --description "Do not save or read the previous location of the executable."
+complete \
+    --command switch-executable \
+    --condition "__fish_is_nth_token 1" \
+    --no-files \
+    --arguments "(__fish_complete_command | awk '\$2 == \"command\" {print \$1}')" \
+    --description Command
+complete \
+    --command switch-executable \
+    --condition "__fish_is_nth_token 2" \
+    --no-files \
+    --keep \
+    --arguments "on off toggle" \
+    --description "Action to perform on the command"
