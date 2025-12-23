@@ -18,10 +18,12 @@ if status is-interactive
     end
 
     if type -q hx
-        fish_add_path --path $HOME/.local/share/helix/LSP/bin
         set -x EDITOR hx
     else if type -q helix
-        fish_add_path --path $HOME/.local/share/helix/LSP/bin
         set -x EDITOR helix
+    end
+
+    if test -d $HOME/.local/bin
+        fish_add_path --path $HOME/.local/bin
     end
 end
