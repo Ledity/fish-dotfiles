@@ -46,8 +46,8 @@ Where:
         or return 255
         set -f executable $argv[1]
 
-        if type -fq $executable
-            type -fp $executable
+        if type --query --no-functions $executable && test "$(type --type $executable)" = file
+            type --path $executable
             return 0
         end
 
@@ -85,9 +85,6 @@ Where:
                 return 0
             end
         end
-
-        echo "\
-$(set_color -o yellow)WARNING$(set_color normal): Could not find $executable in PATH" >&2
         return 1
     end
 
@@ -214,14 +211,21 @@ $(set_color -o red)ERROR$(set_color normal): Could not set $path off" >&2
             do-action $subcmd $path
             if test "$status" = 0
                 return 0
-            else
-                rm $cache_path
             end
         end
     end
 
-    set -f path (find-executable --brute $executable)
-    or return 0
+    if set -q _flag_no_cache
+        set -f path (find-executable --no-cache --brute $executable)
+    else
+        set -f path (find-executable --brute $executable)
+    end
+
+    if not test -n "$path"
+        echo "\
+$(set_color -o yellow)WARNING$(set_color normal): Could not find $executable in PATH" >&2
+        return 0
+    end
 
     do-action $subcmd $path
     return $status
