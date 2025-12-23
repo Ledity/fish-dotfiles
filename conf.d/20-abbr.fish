@@ -6,17 +6,15 @@ if status is-interactive # Commands to run in interactive sessions can go here
     end
 
     function _add_abbr_if_exists
-        if test -e "$argv[2]"
+        if test -d "$argv[2]"
             set -f dest "$(string escape --style=script -- $argv[2])"
             abbr --add "$argv[1]" --position=anywhere --set-cursor "$dest/%"
         end
     end
 
-    _add_abbr_if_exists fish-c "$HOME/.config/fish"
-    _add_abbr_if_exists fish-d "$HOME/.config/fish/conf.d"
+    _add_abbr_if_exists fish-d "$HOME/.config/fish"
+    _add_abbr_if_exists fish-c "$HOME/.config/fish/conf.d"
     _add_abbr_if_exists fish-f "$HOME/.config/fish/functions"
-
-    abbr --add le --set-cursor '% | less'
 
     function _last_history_item --description "prints last history item"
         echo $history[1]
