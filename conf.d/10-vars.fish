@@ -26,4 +26,6 @@ if status is-interactive
     if test -d $HOME/.local/bin
         fish_add_path --path $HOME/.local/bin
     end
+
+    set -g fish_greeting
 end
