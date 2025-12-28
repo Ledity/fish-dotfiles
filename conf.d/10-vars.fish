@@ -18,9 +18,9 @@ if status is-interactive
     end
 
     if type -q hx
-        set -x EDITOR hx
+        set -gx EDITOR hx
     else if type -q helix
-        set -x EDITOR helix
+        set -gx EDITOR helix
     end
 
     if test -d $HOME/.local/bin
