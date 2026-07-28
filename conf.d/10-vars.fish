@@ -17,7 +17,9 @@ if status is-interactive
         fish_add_path --path $CARGO_HOME/bin
     end
 
-    if type -q hx
+    if type -q nvim
+        set -gx EDITOR nvim
+    else if type -q hx
         set -gx EDITOR hx
     else if type -q helix
         set -gx EDITOR helix
