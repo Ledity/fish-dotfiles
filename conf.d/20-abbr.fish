@@ -16,6 +16,8 @@ if status is-interactive # Commands to run in interactive sessions can go here
     _add_abbr_if_exists fish-c "$HOME/.config/fish/conf.d"
     _add_abbr_if_exists fish-f "$HOME/.config/fish/functions"
 
+    _add_abbr_if_exists nvim-c "$HOME/.config/nvim"
+
     function _last_history_item --description "prints last history item"
         echo $history[1]
     end
