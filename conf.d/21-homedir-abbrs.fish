@@ -17,6 +17,11 @@ if status is-interactive # Commands to run in interactive sessions can go here
     _add_abbr_if_exists desk-d "$HOME/Рабочий Стол"
     _add_abbr_if_exists temp-d "$HOME/Шаблоны"
 
+    _add_abbr_if_exists fish-d "$HOME/.config/fish"
+    _add_abbr_if_exists fish-c "$HOME/.config/fish/conf.d"
+    _add_abbr_if_exists fish-f "$HOME/.config/fish/functions"
+    _add_abbr_if_exists nvim-c "$HOME/.config/nvim"
+
     function list-homedir-abbrs --description "Сокращения каталогов в \$HOME"
         echo -e "\
 work-d\t\"$HOME/Work\"\n\
