@@ -6,7 +6,6 @@ if status is-interactive # Commands to run in interactive sessions can go here
         end
     end
 
-    _add_abbr_if_exists work-d "$HOME/Work"
     _add_abbr_if_exists doc-d "$HOME/Документы"
     _add_abbr_if_exists vid-d "$HOME/Видео"
     _add_abbr_if_exists down-d "$HOME/Загрузки"
@@ -14,7 +13,8 @@ if status is-interactive # Commands to run in interactive sessions can go here
     _add_abbr_if_exists img-d "$HOME/Изображения"
     _add_abbr_if_exists mus-d "$HOME/Музыка"
     _add_abbr_if_exists com-d "$HOME/Общедоступные"
-    _add_abbr_if_exists desk-d "$HOME/Рабочий Стол"
+    _add_abbr_if_exists proj-d "$HOME/Проекты"
+    _add_abbr_if_exists desk-d "$HOME/Рабочий стол"
     _add_abbr_if_exists temp-d "$HOME/Шаблоны"
 
     _add_abbr_if_exists fish-d "$HOME/.config/fish"
@@ -31,8 +31,8 @@ down-d\t\"$HOME/Загрузки\"\n\
 game-d\t\"$HOME/Игры\"\n\
 img-d\t\"$HOME/Изображения\"\n\
 mus-d\t\"$HOME/Музыка\"\n\
-com-d\t\"$HOME/Общедоступные\"\n\
 desk-d\t\"$HOME/Рабочий стол\"\n\
+proj\t\"$HOME/Проекты\"\n\
 temp-d\t\"$HOME/Шаблоны\"\n\
         " >&2
     end
